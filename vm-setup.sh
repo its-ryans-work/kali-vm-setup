@@ -141,6 +141,18 @@ if ! command -v curl >/dev/null 2>&1; then
   echo "    curl missing, installing it first"
   $SUDO apt-get update -qq && $SUDO apt-get install -y curl ca-certificates || die "could not install curl"
 fi
+
+# A fresh VM often has a wrong clock, which makes every HTTPS fetch fail with a
+# certificate "not yet valid" error. If TLS is broken, fix the clock: enable NTP
+# for the long run, and force an immediate correction from an HTTP Date header
+# (plain HTTP has no certificate to validate, so a wrong clock cannot block it).
+if ! curl -fsI --max-time 8 https://go.dev >/dev/null 2>&1; then
+  warn "HTTPS check failed (often a wrong VM clock) - correcting the clock"
+  command -v timedatectl >/dev/null 2>&1 && $SUDO timedatectl set-ntp true >/dev/null 2>&1 || true
+  _httpdate="$(curl -sI --max-time 10 http://cloudflare.com 2>/dev/null | grep -i '^date:' | head -1 | cut -d' ' -f2- | tr -d '\r')"
+  [ -n "$_httpdate" ] && $SUDO date -s "$_httpdate" >/dev/null 2>&1 && echo "    clock set to $(date -u +%FT%TZ)"
+  curl -fsI --max-time 8 https://go.dev >/dev/null 2>&1 || warn "HTTPS still failing after clock fix - downloads may fail"
+fi
 ARCH="$(dpkg --print-architecture)"
 case "$ARCH" in
   arm64) ZIG_TRIPLE="aarch64-linux-musl" ;;
