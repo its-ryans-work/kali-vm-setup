@@ -262,6 +262,13 @@ go_install() {
 }
 if want gowitness; then echo "    gowitness"; go_install "github.com/sensepost/gowitness@latest"; else skip "gowitness"; fi
 if want kerbrute;  then echo "    kerbrute";  go_install "github.com/ropnop/kerbrute@latest";  else skip "kerbrute";  fi
+# Reclaim the Go build + module cache (~1 GB in $HOME/go and $HOME/.cache/go-build);
+# the compiled binaries already live in $GOBIN_DIR, so the cache is just leftover.
+if want gowitness || want kerbrute; then
+  if [[ -n "$SUDO" ]]; then $SUDO env "PATH=$PATH" go clean -cache -modcache 2>/dev/null || true
+  else go clean -cache -modcache 2>/dev/null || true; fi
+  echo "    cleaned Go build/module cache"
+fi
 
 # ------------------------------------------------------- 4. release binaries
 say "Release binaries (arch-gated)"
