@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="44" viewBox="0 0 1000 44">
+<rect width="1000" height="44" fill="#1a1b26" fill-opacity="0.0"/>
+<rect width="1000" height="44" fill="#0d0d12"/>
+<rect x="4" y="0" width="178" height="44" fill="#7aa2f7"/>
+<text x="16" y="29" fill="#1a1b26" font-family="JetBrains Mono, DejaVu Sans Mono, monospace" font-weight="700" font-size="18">powerline@kali</text>
+<rect x="192" y="0" width="86" height="44" fill="#bb9af7"/>
+<text x="202" y="29" fill="#1a1b26" font-family="JetBrains Mono, DejaVu Sans Mono, monospace" font-weight="700" font-size="18">0 main</text>
+<text x="290" y="29" fill="#737aa2" font-family="JetBrains Mono, DejaVu Sans Mono, monospace" font-weight="700" font-size="18">1 system</text>
+<text x="400" y="29" fill="#737aa2" font-family="JetBrains Mono, DejaVu Sans Mono, monospace" font-weight="700" font-size="18">2 work</text>
+<text x="488" y="29" fill="#737aa2" font-family="JetBrains Mono, DejaVu Sans Mono, monospace" font-weight="700" font-size="18">3 monitoring</text>
+<rect x="804" y="0" width="196" height="44" fill="#3b4261"/>
+<text x="814" y="29" fill="#c0caf5" font-family="JetBrains Mono, DejaVu Sans Mono, monospace" font-weight="700" font-size="18">2026-09-28 16:55</text>
+</svg>
