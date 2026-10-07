@@ -265,18 +265,24 @@ if want kerbrute;  then echo "    kerbrute";  go_install "github.com/ropnop/kerb
 # Reclaim the Go build + module cache (~1 GB in $HOME/go and $HOME/.cache/go-build);
 # the compiled binaries already live in $GOBIN_DIR, so the cache is just leftover.
 if want gowitness || want kerbrute; then
-  # Remove the build cache, the module cache, AND the now-empty GOPATH dir (~/go)
-  # that `go install` leaves behind; the binaries already live in $GOBIN_DIR.
-  if [[ -n "$SUDO" ]]; then
-    _gopath="$($SUDO env "PATH=$PATH" go env GOPATH 2>/dev/null)"
-    $SUDO env "PATH=$PATH" go clean -cache -modcache 2>/dev/null || true
-    [ -n "$_gopath" ] && [ "$_gopath" != "/" ] && $SUDO rm -rf "$_gopath" || true
-  else
-    _gopath="$(go env GOPATH 2>/dev/null)"
+  # Binaries live in $GOBIN_DIR (/usr/local/bin) - a DIFFERENT path from GOPATH (~/go) and
+  # GOCACHE (~/.cache/go-build), which hold only Go's own caches. Remove both: GOCACHE whole
+  # (pure build cache, no user content), and GOPATH's pkg cache (go clean -modcache leaves
+  # pkg/sumdb behind) then prune the GOPATH tree only where EMPTY, so anything unexpected is
+  # preserved. The installed binaries are untouched - they are in $GOBIN_DIR, not GOPATH.
+  _goclean() {
+    local gp gc
+    gp="$(go env GOPATH 2>/dev/null)"; gc="$(go env GOCACHE 2>/dev/null)"
     go clean -cache -modcache 2>/dev/null || true
-    [ -n "$_gopath" ] && [ "$_gopath" != "/" ] && rm -rf "$_gopath" || true
-  fi
-  echo "    cleaned Go cache + removed ${_gopath:-GOPATH}"
+    [ -n "$gc" ] && [ "$gc" != "/" ] && [ "$gc" != "$HOME" ] && rm -rf "$gc" 2>/dev/null || true
+    if [ -n "$gp" ] && [ "$gp" != "/" ] && [ "$gp" != "$HOME" ]; then
+      rm -rf "$gp/pkg" 2>/dev/null || true
+      find "$gp" -depth -type d -empty -delete 2>/dev/null || true
+    fi
+    echo "    cleaned Go caches (removed $gp, $gc)"
+  }
+  if [[ -n "$SUDO" ]]; then $SUDO env "PATH=$PATH" bash -c "$(declare -f _goclean); _goclean"
+  else _goclean; fi
 fi
 
 # ------------------------------------------------------- 4. release binaries
