@@ -445,9 +445,9 @@ tmux-save() {
 }
 alias tmuxsave='tmux-save'
 
-# Two-line Kali-style prompt with a date header line.
+# Prompt: a connected ┌├└ frame; grey date + timezone header line.
 setopt prompt_subst
-PROMPT=$'%F{%(#.blue.green)}┌─#%f (%D{%Y-%m-%d %H:%M:%S})\n%F{%(#.blue.green)}┌──(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%~%b%F{%(#.blue.green)}]\n└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
+PROMPT=$'%F{%(#.blue.green)}┌──[%f%F{244}%D{%Y-%m-%d %H:%M:%S %Z}%f%F{%(#.blue.green)}]\n%F{%(#.blue.green)}├──(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%~%b%F{%(#.blue.green)}]\n└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
 # <<< vm-setup <<<
 ZB_EOF
   # Make zsh the login shell for the target user (idempotent).
