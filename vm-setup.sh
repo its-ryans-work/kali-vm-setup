@@ -265,9 +265,18 @@ if want kerbrute;  then echo "    kerbrute";  go_install "github.com/ropnop/kerb
 # Reclaim the Go build + module cache (~1 GB in $HOME/go and $HOME/.cache/go-build);
 # the compiled binaries already live in $GOBIN_DIR, so the cache is just leftover.
 if want gowitness || want kerbrute; then
-  if [[ -n "$SUDO" ]]; then $SUDO env "PATH=$PATH" go clean -cache -modcache 2>/dev/null || true
-  else go clean -cache -modcache 2>/dev/null || true; fi
-  echo "    cleaned Go build/module cache"
+  # Remove the build cache, the module cache, AND the now-empty GOPATH dir (~/go)
+  # that `go install` leaves behind; the binaries already live in $GOBIN_DIR.
+  if [[ -n "$SUDO" ]]; then
+    _gopath="$($SUDO env "PATH=$PATH" go env GOPATH 2>/dev/null)"
+    $SUDO env "PATH=$PATH" go clean -cache -modcache 2>/dev/null || true
+    [ -n "$_gopath" ] && [ "$_gopath" != "/" ] && $SUDO rm -rf "$_gopath" || true
+  else
+    _gopath="$(go env GOPATH 2>/dev/null)"
+    go clean -cache -modcache 2>/dev/null || true
+    [ -n "$_gopath" ] && [ "$_gopath" != "/" ] && rm -rf "$_gopath" || true
+  fi
+  echo "    cleaned Go cache + removed ${_gopath:-GOPATH}"
 fi
 
 # ------------------------------------------------------- 4. release binaries
@@ -429,8 +438,21 @@ tmux-save() {
   printf 'Saved tmux scrollback to: %s (%s lines)\n' "$output_file" "$(wc -l < "$output_file" | tr -d ' ')"
 }
 alias tmuxsave='tmux-save'
+
+# Two-line Kali-style prompt with a date header line.
+setopt prompt_subst
+PROMPT=$'%F{%(#.blue.green)}┌─#%f (%D{%Y-%m-%d %H:%M:%S})\n%F{%(#.blue.green)}┌──(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%~%b%F{%(#.blue.green)}]\n└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
 # <<< vm-setup <<<
 ZB_EOF
+  # Make zsh the login shell for the target user (idempotent).
+  if command -v zsh >/dev/null 2>&1; then
+    _zsh="$(command -v zsh)"
+    if [ "$(getent passwd "$TARGET_USER" | cut -d: -f7)" != "$_zsh" ]; then
+      $SUDO chsh -s "$_zsh" "$TARGET_USER" >/dev/null 2>&1 && echo "    login shell -> $_zsh" || warn "chsh to zsh failed (change it manually)"
+    else
+      echo "    login shell already zsh"
+    fi
+  fi
 else skip "zshfns"; fi
 
 # ---------------------------------------------------------------- summary

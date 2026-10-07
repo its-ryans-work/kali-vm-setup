@@ -18,7 +18,7 @@ nxc smb 10.0.0.0/24 | clip
 - **`tmux-save`** — dump every tmux pane's scrollback to one file
 - **tmux** — 1M scrollback, vi copy mode, mouse, OSC 52 clipboard
 - **tmux theme** (optional) — Tokyo Night, `minimal` or `powerline`
-- **zsh** shell with the utilities wired in
+- **zsh** as the default shell, with the utilities above and a two-line Kali prompt (date + `user㉿host`)
 - **nxc** — `Pwn3d!` → `Admin!`
 
 ## Install
